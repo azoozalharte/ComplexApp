@@ -1,9 +1,23 @@
 import PageTitle from "./PageTitle";
+import Axios from "axios";
+import { useState } from "react";
 
 export default function HomeGuest() {
-  function handleSubmit(e) {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  async function handleSubmit(e) {
     e.preventDefault();
-    alert("Ho Ho");
+    try {
+      await Axios.post("http://localhost:8080/register", {
+        username,
+        email,
+        password,
+      });
+      console.log("User was Created");
+    } catch (e) {
+      console.log(e);
+    }
   }
   return (
     <PageTitle title="Welcome!" wide={true}>
@@ -30,6 +44,8 @@ export default function HomeGuest() {
                 type="text"
                 placeholder="Pick a username"
                 autoComplete="off"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -43,6 +59,8 @@ export default function HomeGuest() {
                 type="text"
                 placeholder="you@example.com"
                 autoComplete="off"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -55,6 +73,8 @@ export default function HomeGuest() {
                 className="form-control"
                 type="password"
                 placeholder="Create a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <button
