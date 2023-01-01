@@ -44,7 +44,6 @@ export default function HomeGuest() {
                 type="text"
                 placeholder="Pick a username"
                 autoComplete="off"
-                value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
             </div>
@@ -59,7 +58,6 @@ export default function HomeGuest() {
                 type="text"
                 placeholder="you@example.com"
                 autoComplete="off"
-                value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
@@ -73,7 +71,6 @@ export default function HomeGuest() {
                 className="form-control"
                 type="password"
                 placeholder="Create a password"
-                value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
