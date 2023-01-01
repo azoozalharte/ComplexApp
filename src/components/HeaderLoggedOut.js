@@ -2,8 +2,8 @@ import Axios from "axios";
 import { useEffect, useState } from "react";
 
 export default function HeaderLoggedOut({ setIsLoggedIn }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState();
+  const [password, setPassword] = useState();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -12,8 +12,15 @@ export default function HeaderLoggedOut({ setIsLoggedIn }) {
         username,
         password,
       });
-      setIsLoggedIn(true);
-      console.log(res.data);
+
+      if (res.data) {
+        localStorage.setItem("complexappToken", res.data.token);
+        localStorage.setItem("complexappUsername", res.data.username);
+        localStorage.setItem("complexappAvatar", res.data.avatar);
+        setIsLoggedIn(true);
+      } else {
+        console.log("Username/Password are not courrect");
+      }
     } catch (e) {
       console.log(e);
     }

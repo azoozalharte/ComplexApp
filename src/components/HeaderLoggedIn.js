@@ -1,6 +1,10 @@
 import React from "react";
 
 export default function HeaderLoggedIn({ setIsLoggedIn }) {
+  function handleLogout() {
+    localStorage.clear();
+    setIsLoggedIn(false);
+  }
   return (
     <div className="flex-row my-3 my-md-0">
       <a href="#" className="text-white mr-2 header-search-icon">
@@ -20,10 +24,7 @@ export default function HeaderLoggedIn({ setIsLoggedIn }) {
       <a className="btn btn-sm btn-success mr-2" href="/create-post">
         Create Post
       </a>
-      <button
-        onClick={() => setIsLoggedIn(false)}
-        className="btn btn-sm btn-secondary"
-      >
+      <button onClick={handleLogout} className="btn btn-sm btn-secondary">
         Sign Out
       </button>
     </div>
