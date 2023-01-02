@@ -3,10 +3,7 @@ import { Link } from "react-router-dom";
 import HeaderLoggedIn from "./HeaderLoggedIn";
 import HeaderLoggedOut from "./HeaderLoggedOut";
 
-export default function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    Boolean(localStorage.getItem("complexappToken"))
-  );
+export default function Header({ isLoggedIn, setIsLoggedIn }) {
   return (
     <div>
       <header className="header-bar bg-primary mb-3">

@@ -1,8 +1,11 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function HeaderLoggedIn({ setIsLoggedIn }) {
   function handleLogout() {
-    localStorage.clear();
+    localStorage.removeItem("complexappToken");
+    localStorage.removeItem("complexappUsername");
+    localStorage.removeItem("complexappAvatar");
     setIsLoggedIn(false);
   }
   return (
@@ -17,13 +20,13 @@ export default function HeaderLoggedIn({ setIsLoggedIn }) {
       <a href="#" className="mr-2">
         <img
           className="small-header-avatar"
-          src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128"
+          src={localStorage.getItem("complexappAvatar")}
           alt=""
         />
       </a>
-      <a className="btn btn-sm btn-success mr-2" href="/create-post">
+      <Link className="btn btn-sm btn-success mr-2" to="/create-post">
         Create Post
-      </a>
+      </Link>
       <button onClick={handleLogout} className="btn btn-sm btn-secondary">
         Sign Out
       </button>
