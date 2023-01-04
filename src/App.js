@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useImmerReducer } from "use-immer";
 import Axios from "axios";
@@ -21,12 +21,18 @@ function App() {
   const initialState = {
     isLoggedIn: Boolean(localStorage.getItem("complexappToken")),
     flashMessages: [],
+    user: {
+      token: localStorage.getItem("complexappToken"),
+      username: localStorage.getItem("complexappUsername"),
+      avatar: localStorage.getItem("complexappAvatar"),
+    },
   };
 
   function ourReducer(draft, action) {
     switch (action.type) {
       case "login":
         draft.isLoggedIn = true;
+        draft.user = action.data;
         break;
       case "logout":
         draft.isLoggedIn = false;
@@ -40,6 +46,18 @@ function App() {
   }
 
   const [state, dispatch] = useImmerReducer(ourReducer, initialState);
+
+  useEffect(() => {
+    if (state.isLoggedIn) {
+      localStorage.setItem("complexappToken", state.user.token);
+      localStorage.setItem("complexappUsername", state.user.username);
+      localStorage.setItem("complexappAvatar", state.user.avatar);
+    } else {
+      localStorage.removeItem("complexappToken");
+      localStorage.removeItem("complexappUsername");
+      localStorage.removeItem("complexappAvatar");
+    }
+  }, [state.isLoggedIn]);
 
   return (
     <StateContext.Provider value={state}>

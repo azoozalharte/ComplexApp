@@ -1,11 +1,12 @@
 import PageTitle from "./PageTitle";
-
+import { useContext } from "react";
+import StateContext from "../StateContext";
 export default function Home() {
+  const appState = useContext(StateContext);
   return (
     <PageTitle title="Your Feed">
       <h2 className="text-center">
-        Hello <strong>{localStorage.getItem("complexappUsername")}</strong>,
-        your feed is empty.
+        Hello <strong>{appState.user.username}</strong>, your feed is empty.
       </h2>
       <p className="lead text-muted text-center">
         Your feed displays the latest posts from the people you follow. If you

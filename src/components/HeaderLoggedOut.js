@@ -16,10 +16,7 @@ export default function HeaderLoggedOut() {
       });
 
       if (res.data) {
-        localStorage.setItem("complexappToken", res.data.token);
-        localStorage.setItem("complexappUsername", res.data.username);
-        localStorage.setItem("complexappAvatar", res.data.avatar);
-        appDispatch({ type: "login" });
+        appDispatch({ type: "login", data: res.data });
       } else {
         console.log("Username/Password are not courrect");
       }
