@@ -1,9 +1,11 @@
 import Axios from "axios";
-import { useState } from "react";
-
-export default function HeaderLoggedOut({ setIsLoggedIn }) {
+import { useContext, useState } from "react";
+import DispatchContext from "../DispatchContext";
+export default function HeaderLoggedOut() {
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
+
+  const appDispatch = useContext(DispatchContext);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -17,7 +19,7 @@ export default function HeaderLoggedOut({ setIsLoggedIn }) {
         localStorage.setItem("complexappToken", res.data.token);
         localStorage.setItem("complexappUsername", res.data.username);
         localStorage.setItem("complexappAvatar", res.data.avatar);
-        setIsLoggedIn(true);
+        appDispatch({ type: "login" });
       } else {
         console.log("Username/Password are not courrect");
       }

@@ -1,19 +1,27 @@
 import Axios from "axios";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import DispatchContext from "../DispatchContext";
+// Components
 import PageTitle from "./PageTitle";
 export default function CreatePost() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const appDispatch = useContext(DispatchContext);
+  //   Navigate
+  const navigate = useNavigate();
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      await Axios.post("/create-post", {
+      const res = await Axios.post("/create-post", {
         title,
         body,
         token: localStorage.getItem("complexappToken"),
       });
+      appDispatch({ type: "flashMessage", value: "Post Added :))" });
+      navigate(`/post/${res.data}`);
     } catch (error) {
-      console.log("There is a proplem");
+      console.log(error);
     }
   }
   return (
