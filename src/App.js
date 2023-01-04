@@ -1,5 +1,6 @@
-import { useState, useReducer } from "react";
+import { useReducer } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useImmerReducer } from "use-immer";
 import Axios from "axios";
 import StateContext from "./StateContext";
 import DispatchContext from "./DispatchContext";
@@ -22,23 +23,23 @@ function App() {
     flashMessages: [],
   };
 
-  function ourReducer(state, action) {
+  function ourReducer(draft, action) {
     switch (action.type) {
       case "login":
-        return { isLoggedIn: true, flashMessages: state.flashMessages };
+        draft.isLoggedIn = true;
+        break;
       case "logout":
-        return { isLoggedIn: false, flashMessages: state.flashMessages };
+        draft.isLoggedIn = false;
+        break;
       case "flashMessage":
-        return {
-          isLoggedIn: state.isLoggedIn,
-          flashMessages: state.flashMessages.concat(action.value),
-        };
+        draft.flashMessages.push(action.value);
+        break;
       default:
-        return 0;
+        break;
     }
   }
 
-  const [state, dispatch] = useReducer(ourReducer, initialState);
+  const [state, dispatch] = useImmerReducer(ourReducer, initialState);
 
   return (
     <StateContext.Provider value={state}>
