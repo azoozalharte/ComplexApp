@@ -2,12 +2,14 @@ import Axios from "axios";
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import DispatchContext from "../DispatchContext";
+import StateContext from "../StateContext";
 // Components
 import PageTitle from "./PageTitle";
 export default function CreatePost() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const appDispatch = useContext(DispatchContext);
+  const appState = useContext(StateContext);
   //   Navigate
   const navigate = useNavigate();
   async function handleSubmit(e) {
@@ -16,7 +18,7 @@ export default function CreatePost() {
       const res = await Axios.post("/create-post", {
         title,
         body,
-        token: localStorage.getItem("complexappToken"),
+        token: appState.user.token,
       });
       appDispatch({ type: "flashMessage", value: "Post Added :))" });
       navigate(`/post/${res.data}`);
