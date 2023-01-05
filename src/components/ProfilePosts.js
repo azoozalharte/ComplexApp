@@ -16,7 +16,7 @@ export default function ProfilePosts() {
     }
 
     fecthPosts();
-  }, []);
+  }, [posts]);
 
   if (isLodding) return <div>Lodding...</div>;
   return (
