@@ -1,6 +1,7 @@
 import Axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import LoadingDotsIcon from "./LoadingDotsIcon";
 
 export default function ProfilePosts() {
   const [isLodding, setIslodding] = useState(true);
@@ -8,17 +9,21 @@ export default function ProfilePosts() {
   const { username } = useParams();
 
   const fecthPosts = useCallback(async () => {
-    const res = await Axios.get(`/profile/${username}/posts`);
-    setPosts(res.data);
-    console.log(res.data);
-    setIslodding(false);
+    try {
+      const res = await Axios.get(`/profile/${username}/posts`);
+      setPosts(res.data);
+      console.log(res.data);
+      setIslodding(false);
+    } catch (error) {
+      console.log("some error here");
+    }
   }, [username]);
 
   useEffect(() => {
     fecthPosts();
   }, [fecthPosts]);
 
-  if (isLodding) return <div>Lodding...</div>;
+  if (isLodding) return <LoadingDotsIcon />;
   return (
     <div className="list-group">
       {posts.map((post) => {

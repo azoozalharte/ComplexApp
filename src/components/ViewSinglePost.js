@@ -2,6 +2,7 @@ import Axios from "axios";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import StateContext from "../StateContext";
+import LoadingDotsIcon from "./LoadingDotsIcon";
 
 // comonents
 import PageTitle from "./PageTitle";
@@ -14,20 +15,24 @@ export default function ViewSinglePost() {
   const { id } = useParams();
 
   const featchPost = useCallback(async () => {
-    const res = await Axios.get(`/post/${id}`);
-    setPost(res.data);
-    if (res.data.author.username === appState.user.username) {
-      setIsOwner(true);
+    try {
+      const res = await Axios.get(`/post/${id}`);
+      setPost(res.data);
+      if (res.data.author.username === appState.user.username) {
+        setIsOwner(true);
+      }
+      setIslodding(false);
+      console.log("1");
+    } catch (error) {
+      console.log("some error here");
     }
-    setIslodding(false);
-    console.log("1");
   }, [id, appState]);
 
   useEffect(() => {
     featchPost();
   }, [featchPost, isOwner]);
 
-  if (isLodding) return <div>Lodding...</div>;
+  if (isLodding) return <LoadingDotsIcon />;
 
   const date = new Date(post.createdDate);
   return (
