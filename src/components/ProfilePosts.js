@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 export default function ProfilePosts() {
@@ -7,16 +7,16 @@ export default function ProfilePosts() {
   const [posts, setPosts] = useState([]);
   const { username } = useParams();
 
-  useEffect(() => {
-    async function fecthPosts() {
-      const res = await Axios.get(`/profile/${username}/posts`);
-      setPosts(res.data);
-      console.log(res.data);
-      setIslodding(false);
-    }
+  const fecthPosts = useCallback(async () => {
+    const res = await Axios.get(`/profile/${username}/posts`);
+    setPosts(res.data);
+    console.log(res.data);
+    setIslodding(false);
+  }, [username]);
 
+  useEffect(() => {
     fecthPosts();
-  }, [posts]);
+  }, [fecthPosts]);
 
   if (isLodding) return <div>Lodding...</div>;
   return (

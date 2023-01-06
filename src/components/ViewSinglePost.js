@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import StateContext from "../StateContext";
 
@@ -13,18 +13,19 @@ export default function ViewSinglePost() {
   const appState = useContext(StateContext);
   const { id } = useParams();
 
-  useEffect(() => {
-    async function featchPost() {
-      const res = await Axios.get(`/post/${id}`);
-      setPost(res.data);
-      if (res.data.author.username === appState.user.username) {
-        setIsOwner(true);
-      }
-      setIslodding(false);
+  const featchPost = useCallback(async () => {
+    const res = await Axios.get(`/post/${id}`);
+    setPost(res.data);
+    if (res.data.author.username === appState.user.username) {
+      setIsOwner(true);
     }
+    setIslodding(false);
+    console.log("1");
+  }, [id, appState]);
 
+  useEffect(() => {
     featchPost();
-  }, []);
+  }, [featchPost, isOwner]);
 
   if (isLodding) return <div>Lodding...</div>;
 
