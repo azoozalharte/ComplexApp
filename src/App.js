@@ -15,6 +15,7 @@ import Terms from "./components/Terms";
 import ViewSinglePost from "./components/ViewSinglePost";
 import FlashMessages from "./components/FlashMessages";
 import Profile from "./components/Profile";
+import EditPost from "./components/EditPost";
 
 Axios.defaults.baseURL = "http://localhost:8080/";
 
@@ -72,6 +73,7 @@ function App() {
               element={state.isLoggedIn ? <Home /> : <HomeGuest />}
             />
             <Route path="/post/:id" element={<ViewSinglePost />} />
+            <Route path="/post/:id/edit" element={<EditPost />} />
             <Route path="/about" element={<About />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/create-post" element={<CreatePost />} />

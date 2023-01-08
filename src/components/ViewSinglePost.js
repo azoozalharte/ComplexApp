@@ -1,5 +1,6 @@
 import Axios from "axios";
 import { useCallback, useContext, useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { Link, useParams } from "react-router-dom";
 import StateContext from "../StateContext";
 import LoadingDotsIcon from "./LoadingDotsIcon";
@@ -41,9 +42,14 @@ export default function ViewSinglePost() {
         <h2>{post.title}</h2>
         {isOwner && (
           <span className="pt-2">
-            <a href="#" className="text-primary mr-2" title="Edit">
+            <Link
+              to={`/post/${post._id}/edit`}
+              className="text-primary mr-2"
+              title="edit"
+            >
               <i className="fas fa-edit"></i>
-            </a>
+            </Link>
+
             <a className="delete-post-button text-danger" title="Delete">
               <i className="fas fa-trash"></i>
             </a>
@@ -67,7 +73,7 @@ export default function ViewSinglePost() {
       </p>
 
       <div className="body-content">
-        <p>{post.body} </p>
+        <ReactMarkdown>{post.body}</ReactMarkdown>{" "}
       </div>
     </PageTitle>
   );
