@@ -36,21 +36,36 @@ export default function EditPost() {
         draft.body.value = action.value.body;
         draft.isLodding = false;
         break;
-      case "editTitle":
+      case "titleChange":
+        draft.title.hasError = false;
         draft.title.value = action.value;
         break;
-      case "editBody":
+      case "bodyChange":
+        draft.body.hasError = false;
         draft.body.value = action.value;
         break;
       case "submitForm":
-        console.log("Azoozka");
-        draft.sendCount++;
+        if (!draft.title.hasError && !draft.body.hasError) {
+          draft.sendCount++;
+        }
         break;
       case "saveRequestStarted":
         draft.isSaveing = true;
         break;
       case "saveRequestFinshed":
         draft.isSaveing = false;
+        break;
+      case "titleRules":
+        if (!action.value.trim()) {
+          draft.title.hasError = true;
+          draft.title.message = "Please Porived value in the title";
+        }
+        break;
+      case "bodyRules":
+        if (!action.value.trim()) {
+          draft.body.hasError = true;
+          draft.body.message = "Please Porived value in the body";
+        }
         break;
       default:
         break;
@@ -113,6 +128,8 @@ export default function EditPost() {
 
   function handleSubmit(e) {
     e.preventDefault();
+    dispatch({ type: "titleRules", value: state.title.value });
+    dispatch({ type: "bodyRules", value: state.body.value });
     dispatch({ type: "submitForm" });
   }
   if (state.isLodding) return <LoadingDotsIcon />;
@@ -132,11 +149,19 @@ export default function EditPost() {
             type="text"
             placeholder=""
             autoComplete="off"
+            onBlur={(e) =>
+              dispatch({ type: "titleRules", value: e.target.value })
+            }
             onChange={(e) =>
-              dispatch({ type: "editTitle", value: e.target.value })
+              dispatch({ type: "titleChange", value: e.target.value })
             }
             value={state.title.value}
           />
+          {state.title.hasError && (
+            <div className="alert alert-danger liveValidateMessage">
+              {state.title.message}
+            </div>
+          )}
         </div>
 
         <div className="form-group">
@@ -149,13 +174,26 @@ export default function EditPost() {
             className="body-content tall-textarea form-control"
             type="text"
             value={state.body.value}
+            onBlur={(e) =>
+              dispatch({ type: "bodyRules", value: e.target.value })
+            }
             onChange={(e) =>
-              dispatch({ type: "editBody", value: e.target.value })
+              dispatch({ type: "bodyChange", value: e.target.value })
             }
           />
+          {state.body.hasError && (
+            <div className="alert alert-danger liveValidateMessage">
+              {state.body.message}
+            </div>
+          )}
         </div>
 
-        <button className="btn btn-primary" disabled={state.isSaveing}>
+        <button
+          className="btn btn-primary"
+          disabled={
+            state.isSaveing || state.body.hasError || state.title.hasError
+          }
+        >
           {state.isSaveing ? "Saving..." : "Save Updates"}
         </button>
       </form>
