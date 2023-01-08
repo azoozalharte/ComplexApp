@@ -1,13 +1,17 @@
 import Axios from "axios";
 import { useContext, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import LoadingDotsIcon from "./LoadingDotsIcon";
 import { useImmerReducer } from "use-immer";
 import StateContext from "../StateContext";
-
+import DispatchContext from "../DispatchContext";
 // comonents
 import PageTitle from "./PageTitle";
 export default function EditPost() {
+  const appState = useContext(StateContext);
+  const appDispatch = useContext(DispatchContext);
+  const navigate = useNavigate();
+
   const originalState = {
     title: {
       value: "",
@@ -54,7 +58,6 @@ export default function EditPost() {
   }
 
   const [state, dispatch] = useImmerReducer(ourReducer, originalState);
-  const appState = useContext(StateContext);
 
   useEffect(() => {
     const ourRequest = Axios.CancelToken.source();
@@ -93,7 +96,9 @@ export default function EditPost() {
               cancelToken: ourRequest.token,
             }
           );
+          appDispatch({ type: "flashMessage", value: "Post Edited" });
           dispatch({ type: "saveRequestFinshed" });
+          navigate(`/post/${state.id}`);
         } catch (error) {
           console.log("some error here");
         }
