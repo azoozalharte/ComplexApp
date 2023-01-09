@@ -1,12 +1,13 @@
 import Axios from "axios";
 import { useContext, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import LoadingDotsIcon from "./LoadingDotsIcon";
 import { useImmerReducer } from "use-immer";
 import StateContext from "../StateContext";
 import DispatchContext from "../DispatchContext";
 // comonents
 import PageTitle from "./PageTitle";
+import NotFound from "./NotFound";
 export default function EditPost() {
   const appState = useContext(StateContext);
   const appDispatch = useContext(DispatchContext);
@@ -27,6 +28,7 @@ export default function EditPost() {
     isSaveing: false,
     id: useParams().id,
     sendCount: 0,
+    noData: false,
   };
 
   function ourReducer(draft, action) {
@@ -67,6 +69,10 @@ export default function EditPost() {
           draft.body.message = "Please Porived value in the body";
         }
         break;
+      case "notFound":
+        draft.isLodding = false;
+        draft.noData = true;
+        break;
       default:
         break;
     }
@@ -81,10 +87,13 @@ export default function EditPost() {
         const res = await Axios.get(`/post/${state.id}`, {
           cancelToken: ourRequest.token,
         });
-        console.log(`our request ${ourRequest.token}`);
-        dispatch({ type: "featchComplete", value: res.data });
+        if (res.data) {
+          dispatch({ type: "featchComplete", value: res.data });
+        } else {
+          dispatch({ type: "notFound" });
+        }
       } catch (error) {
-        console.log(error);
+        console.log("there was an error");
       }
     }
 
@@ -133,9 +142,10 @@ export default function EditPost() {
     dispatch({ type: "submitForm" });
   }
   if (state.isLodding) return <LoadingDotsIcon />;
-
+  if (state.noData) return <NotFound />;
   return (
     <PageTitle title="Edit Post">
+      <Link to={`/post/${state.id}`}>Go back to post</Link>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="post-title" className="text-muted mb-1">

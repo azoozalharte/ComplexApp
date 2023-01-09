@@ -4,8 +4,10 @@ import { useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import StateContext from "../StateContext";
 import ProfilePosts from "./ProfilePosts";
+import NotFound from "./NotFound";
 export default function Profile() {
   const { username } = useParams();
+  const [notFound, setNotFound] = useState(false);
   const [profileData, setProfileData] = useState({
     profileUsername: "...",
     profileAvatar: "https://gravatar.com/avatar/?s=128",
@@ -22,11 +24,17 @@ export default function Profile() {
       const res = await Axios.post(`/profile/${username}`, {
         token: appState.user.token,
       });
-      setProfileData(res.data);
+      if (res.data) {
+        setProfileData(res.data);
+      } else {
+        setNotFound(true);
+      }
     }
 
     getRequest();
   }, [username]);
+
+  if (notFound) return <NotFound />;
   return (
     <PageTitle title="Profile">
       <h2>

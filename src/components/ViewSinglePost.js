@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { Link, useParams } from "react-router-dom";
 import StateContext from "../StateContext";
 import LoadingDotsIcon from "./LoadingDotsIcon";
+import NotFound from "./NotFound";
 
 // comonents
 import PageTitle from "./PageTitle";
@@ -11,6 +12,7 @@ import PageTitle from "./PageTitle";
 export default function ViewSinglePost() {
   const [isLodding, setIslodding] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
+  const [notFount, setNotFound] = useState(false);
   const [post, setPost] = useState({});
   const appState = useContext(StateContext);
   const { id } = useParams();
@@ -18,12 +20,15 @@ export default function ViewSinglePost() {
   const featchPost = useCallback(async () => {
     try {
       const res = await Axios.get(`/post/${id}`);
-      setPost(res.data);
-      if (res.data.author.username === appState.user.username) {
-        setIsOwner(true);
+      if (res.data) {
+        setPost(res.data);
+        if (res.data.author.username === appState.user.username) {
+          setIsOwner(true);
+        }
+      } else {
+        setNotFound(true);
       }
       setIslodding(false);
-      console.log("1");
     } catch (error) {
       console.log("some error here");
     }
@@ -34,7 +39,7 @@ export default function ViewSinglePost() {
   }, [featchPost, isOwner]);
 
   if (isLodding) return <LoadingDotsIcon />;
-
+  if (notFount) return <NotFound />;
   const date = new Date(post.createdDate);
   return (
     <PageTitle title={post.title}>
