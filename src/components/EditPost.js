@@ -89,6 +89,13 @@ export default function EditPost() {
         });
         if (res.data) {
           dispatch({ type: "featchComplete", value: res.data });
+          if (appState.user.username !== res.data.author.username) {
+            appDispatch({
+              type: "flashMessage",
+              value: "You don't have premition to edit this post",
+            });
+            navigate("/");
+          }
         } else {
           dispatch({ type: "notFound" });
         }
