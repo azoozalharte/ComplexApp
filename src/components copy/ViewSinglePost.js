@@ -1,9 +1,8 @@
 import Axios from "axios";
 import { useCallback, useContext, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import StateContext from "../StateContext";
-import DispatchContext from "../DispatchContext";
 import LoadingDotsIcon from "./LoadingDotsIcon";
 import NotFound from "./NotFound";
 
@@ -12,17 +11,20 @@ import PageTitle from "./PageTitle";
 
 export default function ViewSinglePost() {
   const [isLodding, setIslodding] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
   const [notFount, setNotFound] = useState(false);
   const [post, setPost] = useState({});
-  const { id } = useParams();
   const appState = useContext(StateContext);
-  const appDispatch = useContext(DispatchContext);
-  const navigate = useNavigate();
+  const { id } = useParams();
+
   const featchPost = useCallback(async () => {
     try {
       const res = await Axios.get(`/post/${id}`);
       if (res.data) {
         setPost(res.data);
+        if (res.data.author.username === appState.user.username) {
+          setIsOwner(true);
+        }
       } else {
         setNotFound(true);
       }
@@ -30,50 +32,20 @@ export default function ViewSinglePost() {
     } catch (error) {
       console.log("some error here");
     }
-  }, [id]);
+  }, [id, appState]);
 
   useEffect(() => {
     featchPost();
-  }, [featchPost]);
-
-  async function handleDelete() {
-    const areYouSure = window.confirm(
-      "Do you realy whant to delete this post?"
-    );
-
-    if (areYouSure) {
-      try {
-        const res = await Axios.delete(`/post/${post._id}`, {
-          data: { token: appState.user.token },
-        });
-        if (res.data === "Success") {
-          appDispatch({
-            type: "flashMessage",
-            value: "Post Delete Successfly",
-          });
-          navigate(`/profile/${appState.user.username}`);
-        }
-      } catch (error) {}
-    }
-  }
+  }, [featchPost, isOwner]);
 
   if (isLodding) return <LoadingDotsIcon />;
   if (notFount) return <NotFound />;
   const date = new Date(post.createdDate);
-
-  function isOwner() {
-    if (appState.isLoggedIn) {
-      if (appState.user.username === post.author.username) {
-        return true;
-      }
-    }
-    return false;
-  }
   return (
     <PageTitle title={post.title}>
       <div className="d-flex justify-content-between">
         <h2>{post.title}</h2>
-        {isOwner() && (
+        {isOwner && (
           <span className="pt-2">
             <Link
               to={`/post/${post._id}/edit`}
@@ -83,11 +55,7 @@ export default function ViewSinglePost() {
               <i className="fas fa-edit"></i>
             </Link>
 
-            <a
-              onClick={handleDelete}
-              className="delete-post-button text-danger"
-              title="Delete"
-            >
+            <a className="delete-post-button text-danger" title="Delete">
               <i className="fas fa-trash"></i>
             </a>
           </span>
