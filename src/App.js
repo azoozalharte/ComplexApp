@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useImmerReducer } from "use-immer";
+import { CSSTransition } from "react-transition-group";
 import Axios from "axios";
 import StateContext from "./StateContext";
 import DispatchContext from "./DispatchContext";
@@ -89,7 +90,14 @@ function App() {
             <Route path="/profile/:username/*" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          {state.isSearch ? <Search /> : ""}
+          <CSSTransition
+            timeout={330}
+            in={state.isSearch}
+            classNames="search-overlay"
+            unmountOnExit
+          >
+            <Search />
+          </CSSTransition>
           <Footer />
         </BrowserRouter>
       </DispatchContext.Provider>
