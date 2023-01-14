@@ -8,9 +8,18 @@ export default function HeaderLoggedIn() {
   function handleLogout() {
     appDispatch({ type: "logout" });
   }
+
+  function handleSearchIcon(e) {
+    e.preventDefault();
+    appDispatch({ type: "showSearch" });
+  }
   return (
     <div className="flex-row my-3 my-md-0">
-      <a href="#" className="text-white mr-2 header-search-icon">
+      <a
+        onClick={handleSearchIcon}
+        href="#"
+        className="text-white mr-2 header-search-icon"
+      >
         <i className="fas fa-search"></i>
       </a>
       <span className="mr-2 header-chat-icon text-white">

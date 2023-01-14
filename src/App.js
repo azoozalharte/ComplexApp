@@ -17,6 +17,7 @@ import FlashMessages from "./components/FlashMessages";
 import Profile from "./components/Profile";
 import EditPost from "./components/EditPost";
 import NotFound from "./components/NotFound";
+import Search from "./components/Search";
 
 Axios.defaults.baseURL = "http://localhost:8080/";
 
@@ -29,6 +30,7 @@ function App() {
       username: localStorage.getItem("complexappUsername"),
       avatar: localStorage.getItem("complexappAvatar"),
     },
+    isSearch: false,
   };
 
   function ourReducer(draft, action) {
@@ -42,6 +44,12 @@ function App() {
         break;
       case "flashMessage":
         draft.flashMessages.push(action.value);
+        break;
+      case "showSearch":
+        draft.isSearch = true;
+        break;
+      case "closeSearch":
+        draft.isSearch = false;
         break;
       default:
         break;
@@ -81,6 +89,7 @@ function App() {
             <Route path="/profile/:username/*" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          {state.isSearch ? <Search /> : ""}
           <Footer />
         </BrowserRouter>
       </DispatchContext.Provider>
