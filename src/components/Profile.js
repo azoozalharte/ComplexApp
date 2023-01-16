@@ -1,11 +1,13 @@
 import PageTitle from "./PageTitle";
 import Axios from "axios";
-import { useParams } from "react-router-dom";
+import { NavLink, Routes, Route, useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import StateContext from "../StateContext";
 import ProfilePosts from "./ProfilePosts";
 import NotFound from "./NotFound";
 import { useImmer } from "use-immer";
+import Followers from "./Followers";
+import Following from "./Following";
 export default function Profile() {
   const { username } = useParams();
   const [notFound, setNotFound] = useState(false);
@@ -175,18 +177,22 @@ export default function Profile() {
       </h2>
 
       <div className="profile-nav nav nav-tabs pt-2 mb-4">
-        <a href="#" className="active nav-item nav-link">
+        <NavLink to="" end className="nav-item nav-link">
           Posts: {state.profileData.counts.postCount}
-        </a>
-        <a href="#" className="nav-item nav-link">
+        </NavLink>
+        <NavLink to="followers" className="nav-item nav-link">
           Followers: {state.profileData.counts.followerCount}
-        </a>
-        <a href="#" className="nav-item nav-link">
+        </NavLink>
+        <NavLink to="following" className="nav-item nav-link">
           Following: {state.profileData.counts.followingCount}
-        </a>
+        </NavLink>
       </div>
 
-      <ProfilePosts />
+      <Routes>
+        <Route path="" element={<ProfilePosts />} />
+        <Route path="followers" element={<Followers />} />
+        <Route path="following" element={<Following />} />
+      </Routes>
     </PageTitle>
   );
 }
