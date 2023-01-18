@@ -19,6 +19,7 @@ import Profile from "./components/Profile";
 import EditPost from "./components/EditPost";
 import NotFound from "./components/NotFound";
 import Search from "./components/Search";
+import Chat from "./components/Chat";
 
 Axios.defaults.baseURL = "http://localhost:8080/";
 
@@ -32,6 +33,7 @@ function App() {
       avatar: localStorage.getItem("complexappAvatar"),
     },
     isSearch: false,
+    isChatOpen: false,
   };
 
   function ourReducer(draft, action) {
@@ -51,6 +53,12 @@ function App() {
         break;
       case "closeSearch":
         draft.isSearch = false;
+        break;
+      case "toggleChat":
+        draft.isChatOpen = !draft.isChatOpen;
+        break;
+      case "closeChat":
+        draft.isChatOpen = false;
         break;
       default:
         break;
@@ -98,6 +106,7 @@ function App() {
           >
             <Search />
           </CSSTransition>
+          <Chat />
           <Footer />
         </BrowserRouter>
       </DispatchContext.Provider>
