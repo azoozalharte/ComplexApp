@@ -1,23 +1,79 @@
 import PageTitle from "./PageTitle";
 import Axios from "axios";
-import { useState } from "react";
+import { useImmerReducer } from "use-immer";
+import { CSSTransition } from "react-transition-group";
 
 export default function HomeGuest() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  async function handleSubmit(e) {
-    e.preventDefault();
-    try {
-      await Axios.post("/register", {
-        username,
-        email,
-        password,
-      });
-      console.log("User was Created");
-    } catch (e) {
-      console.log(e);
+  const initialState = {
+    username: {
+      value: "",
+      hasError: false,
+      message: "",
+      isUnique: false,
+      cheackCount: 0,
+    },
+    email: {
+      value: "",
+      hasError: false,
+      message: "",
+      isUnique: false,
+      cheackCount: 0,
+    },
+    password: {
+      value: "",
+      hasError: false,
+      message: "",
+    },
+    submitCount: 0,
+  };
+
+  function ourReducer(draft, action) {
+    switch (action.type) {
+      case "usernameImmediately":
+        draft.username.hasError = false;
+        draft.username.value = action.value;
+        if (draft.username.value.length > 30) {
+          draft.username.hasError = true;
+          draft.username.message = "Username must be under 30 charchter";
+        }
+
+        if (
+          draft.username.value &&
+          !/^([a-zA-Z0-9]+)$/.test(draft.username.value)
+        ) {
+          draft.username.hasError = true;
+          draft.username.message = "Username must just have litters and number";
+        }
+        break;
+      case "usernameAfterDelay":
+        break;
+      case "usernameUniqueResult":
+        break;
+      case "emailImmediately":
+        draft.email.hasError = false;
+        draft.email.value = action.value;
+        break;
+      case "emailAfterDelay":
+        break;
+      case "emailUniqueResult":
+        break;
+      case "passwordImmediately":
+        draft.password.hasError = false;
+        draft.password.value = action.value;
+        break;
+      case "passwordAfterDelay":
+        break;
+      case "submitForm":
+        break;
+      default:
+        break;
     }
+  }
+
+  const [state, dispatch] = useImmerReducer(ourReducer, initialState);
+
+  function handleSubmit(e) {
+    e.preventDefault();
   }
   return (
     <PageTitle title="Welcome!" wide={true}>
@@ -44,8 +100,23 @@ export default function HomeGuest() {
                 type="text"
                 placeholder="Pick a username"
                 autoComplete="off"
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  dispatch({
+                    type: "usernameImmediately",
+                    value: e.target.value,
+                  });
+                }}
               />
+              <CSSTransition
+                in={state.username.hasError}
+                timeout={330}
+                classNames="liveValidateMessage"
+                unmountOnExit
+              >
+                <div className="alert alert-danger liveValidateMessage">
+                  {state.username.message}
+                </div>
+              </CSSTransition>
             </div>
             <div className="form-group">
               <label htmlFor="email-register" className="text-muted mb-1">
@@ -58,7 +129,12 @@ export default function HomeGuest() {
                 type="text"
                 placeholder="you@example.com"
                 autoComplete="off"
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  dispatch({
+                    type: "emailImmediately",
+                    value: e.target.value,
+                  });
+                }}
               />
             </div>
             <div className="form-group">
@@ -71,7 +147,12 @@ export default function HomeGuest() {
                 className="form-control"
                 type="password"
                 placeholder="Create a password"
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  dispatch({
+                    type: "passwordImmediately",
+                    value: e.target.value,
+                  });
+                }}
               />
             </div>
             <button
