@@ -3,8 +3,11 @@ import Axios from "axios";
 import { useImmerReducer } from "use-immer";
 import { CSSTransition } from "react-transition-group";
 import { useEffect } from "react";
+import { useContext } from "react";
+import DispatchContext from "../DispatchContext";
 
 export default function HomeGuest() {
+  const appDispatch = useContext(DispatchContext);
   const initialState = {
     username: {
       value: "",
@@ -52,7 +55,7 @@ export default function HomeGuest() {
           draft.username.message = "Username must have more then 3 charcters";
         }
 
-        if (!draft.username.hasError) {
+        if (!draft.username.hasError && !action.noRequest) {
           draft.username.cheackCount++;
         }
         break;
@@ -79,7 +82,7 @@ export default function HomeGuest() {
           draft.email.message = "You must provide a vaild email address";
         }
 
-        if (!draft.email.hasError) {
+        if (!draft.email.hasError && !action.noRequest) {
           draft.email.cheackCount++;
         }
         break;
@@ -97,19 +100,30 @@ export default function HomeGuest() {
         draft.password.value = action.value;
         if (draft.password.value.length > 50) {
           draft.password.hasError = true;
-          draft.password.message =
-            "Password is more the 50 please decrease the size";
+          draft.password.message = "Password cannot exceed 50 characters.";
         }
         break;
       case "passwordAfterDelay":
         if (draft.password.value.length < 8) {
           draft.password.hasError = true;
-          draft.password.message =
-            "Password must be greater then or equalt to 8";
+          draft.password.message = "Password must be at least 7 characters.";
         }
         break;
       case "submitForm":
+        if (
+          !draft.username.hasError &&
+          draft.username.isUnique &&
+          !draft.email.hasError &&
+          draft.email.isUnique &&
+          !draft.password.hasError
+        ) {
+          draft.submitCount++;
+        }
         break;
+      case "userCreated":
+        draft.username.value = "";
+        draft.email.value = "";
+        draft.password.value = "";
       default:
         break;
     }
@@ -189,8 +203,59 @@ export default function HomeGuest() {
     }
   }, [state.email.cheackCount]);
 
+  useEffect(() => {
+    if (state.submitCount) {
+      const ourRequest = Axios.CancelToken.source();
+      async function request() {
+        try {
+          const res = await Axios.post(
+            "/register",
+            {
+              username: state.username.value,
+              email: state.email.value,
+              password: state.password.value,
+            },
+            { cancelToketn: ourRequest.token }
+          );
+          if (res.data) {
+            appDispatch({
+              type: "flashMessage",
+              value: "user created successfully You can login now.",
+            });
+            dispatch({ type: "userCreated" });
+          }
+        } catch (e) {
+          console.log("there was an error or the request is canciled");
+        }
+      }
+      request();
+      return () => ourRequest.cancel();
+    }
+  }, [state.submitCount]);
+
   function handleSubmit(e) {
     e.preventDefault();
+    dispatch({
+      type: "usernameImmediately",
+      value: state.username.value,
+    });
+    dispatch({
+      type: "usernameAfterDelay",
+      value: state.username.value,
+      noRequest: true,
+    });
+    dispatch({
+      type: "emailImmediately",
+      value: state.email.value,
+    });
+    dispatch({
+      type: "emailAfterDelay",
+      value: state.email.value,
+      noRequest: true,
+    });
+    dispatch({ type: "passwordImmediately", value: state.password.value });
+    dispatch({ type: "passwordAfterDelay", value: state.password.value });
+    dispatch({ type: "submitForm" });
   }
   return (
     <PageTitle title="Welcome!" wide={true}>
@@ -217,6 +282,7 @@ export default function HomeGuest() {
                 type="text"
                 placeholder="Pick a username"
                 autoComplete="off"
+                value={state.username.value}
                 onChange={(e) => {
                   dispatch({
                     type: "usernameImmediately",
@@ -246,6 +312,7 @@ export default function HomeGuest() {
                 type="text"
                 placeholder="you@example.com"
                 autoComplete="off"
+                value={state.email.value}
                 onChange={(e) => {
                   dispatch({
                     type: "emailImmediately",
@@ -274,6 +341,7 @@ export default function HomeGuest() {
                 className="form-control"
                 type="password"
                 placeholder="Create a password"
+                value={state.password.value}
                 onChange={(e) => {
                   dispatch({
                     type: "passwordImmediately",

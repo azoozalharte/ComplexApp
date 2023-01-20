@@ -27,6 +27,7 @@ function App() {
   const initialState = {
     isLoggedIn: Boolean(localStorage.getItem("complexappToken")),
     flashMessages: [],
+    isDanger: false,
     user: {
       token: localStorage.getItem("complexappToken"),
       username: localStorage.getItem("complexappUsername"),
@@ -47,6 +48,7 @@ function App() {
         break;
       case "flashMessage":
         draft.flashMessages.push(action.value);
+        draft.isDanger = action.isDanger;
         break;
       case "showSearch":
         draft.isSearch = true;
@@ -79,12 +81,43 @@ function App() {
     }
   }, [state.isLoggedIn]);
 
+  useEffect(() => {
+    if (state.isLoggedIn) {
+      const ourRequest = Axios.CancelToken.source();
+      async function request() {
+        try {
+          const res = await Axios.post(
+            "/checkToken",
+            { token: state.user.token },
+            { cancelToketn: ourRequest.token }
+          );
+
+          if (!res.data) {
+            dispatch({ type: "logout" });
+            dispatch({
+              type: "flashMessage",
+              value: "please loggin again",
+              isDanger: true,
+            });
+          }
+        } catch (e) {
+          console.log("there was an error or the request is canciled");
+        }
+      }
+      request();
+      return () => ourRequest.cancel();
+    }
+  }, []);
+
   return (
     <StateContext.Provider value={state}>
       <DispatchContext.Provider value={dispatch}>
         <BrowserRouter>
           <Header />
-          <FlashMessages messages={state.flashMessages} />
+          <FlashMessages
+            messages={state.flashMessages}
+            isDanger={state.isDanger}
+          />
           <Routes>
             <Route
               path="/"

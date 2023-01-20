@@ -17,8 +17,16 @@ export default function HeaderLoggedOut() {
 
       if (res.data) {
         appDispatch({ type: "login", data: res.data });
+        appDispatch({
+          type: "flashMessage",
+          value: "You successfully LoggedIn",
+        });
       } else {
-        console.log("Username/Password are not courrect");
+        appDispatch({
+          type: "flashMessage",
+          value: "Username/Password are not courrect",
+          isDanger: true,
+        });
       }
     } catch (e) {
       console.log(e);
