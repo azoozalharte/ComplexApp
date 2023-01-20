@@ -2,6 +2,7 @@ import PageTitle from "./PageTitle";
 import Axios from "axios";
 import { useImmerReducer } from "use-immer";
 import { CSSTransition } from "react-transition-group";
+import { useEffect } from "react";
 
 export default function HomeGuest() {
   const initialState = {
@@ -46,22 +47,66 @@ export default function HomeGuest() {
         }
         break;
       case "usernameAfterDelay":
+        if (draft.username.value.length < 3) {
+          draft.username.hasError = true;
+          draft.username.message = "Username must have more then 3 charcters";
+        }
+
+        if (!draft.username.hasError) {
+          draft.username.cheackCount++;
+        }
         break;
       case "usernameUniqueResult":
+        if (action.value) {
+          draft.username.hasError = true;
+          draft.username.isUnique = false;
+          draft.username.message = "Username is already exists";
+        } else {
+          draft.username.isUnique = true;
+        }
         break;
       case "emailImmediately":
         draft.email.hasError = false;
         draft.email.value = action.value;
         break;
       case "emailAfterDelay":
+        if (
+          !/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+            draft.email.value
+          )
+        ) {
+          draft.email.hasError = true;
+          draft.email.message = "You must provide a vaild email address";
+        }
+
+        if (!draft.email.hasError) {
+          draft.email.cheackCount++;
+        }
         break;
       case "emailUniqueResult":
+        if (action.value) {
+          draft.email.hasError = true;
+          draft.email.isUnique = false;
+          draft.email.message = "email is already exists";
+        } else {
+          draft.email.isUnique = true;
+        }
         break;
       case "passwordImmediately":
         draft.password.hasError = false;
         draft.password.value = action.value;
+        if (draft.password.value.length > 50) {
+          draft.password.hasError = true;
+          draft.password.message =
+            "Password is more the 50 please decrease the size";
+        }
         break;
       case "passwordAfterDelay":
+        if (draft.password.value.length < 8) {
+          draft.password.hasError = true;
+          draft.password.message =
+            "Password must be greater then or equalt to 8";
+        }
         break;
       case "submitForm":
         break;
@@ -71,6 +116,78 @@ export default function HomeGuest() {
   }
 
   const [state, dispatch] = useImmerReducer(ourReducer, initialState);
+
+  useEffect(() => {
+    if (state.username.value) {
+      const delay = setTimeout(
+        () => dispatch({ type: "usernameAfterDelay" }),
+        900
+      );
+      return () => clearTimeout(delay);
+    }
+  }, [state.username.value]);
+
+  useEffect(() => {
+    if (state.email.value) {
+      const delay = setTimeout(
+        () => dispatch({ type: "emailAfterDelay" }),
+        900
+      );
+      return () => clearTimeout(delay);
+    }
+  }, [state.email.value]);
+
+  useEffect(() => {
+    if (state.password.value) {
+      const delay = setTimeout(
+        () => dispatch({ type: "passwordAfterDelay" }),
+        900
+      );
+      return () => clearTimeout(delay);
+    }
+  }, [state.password.value]);
+
+  useEffect(() => {
+    if (state.username.cheackCount) {
+      const ourRequest = Axios.CancelToken.source();
+      async function request() {
+        try {
+          const res = await Axios.post(
+            "/doesUsernameExist",
+            { username: state.username.value },
+            { cancelToketn: ourRequest.token }
+          );
+
+          dispatch({ type: "usernameUniqueResult", value: res.data });
+        } catch (e) {
+          console.log("there was an error or the request is canciled");
+        }
+      }
+      request();
+      return () => ourRequest.cancel();
+    }
+  }, [state.username.cheackCount]);
+
+  useEffect(() => {
+    if (state.email.cheackCount) {
+      const ourRequest = Axios.CancelToken.source();
+      async function request() {
+        try {
+          const res = await Axios.post(
+            "/doesEmailExist",
+            { email: state.email.value },
+            { cancelToketn: ourRequest.token }
+          );
+
+          dispatch({ type: "emailUniqueResult", value: res.data });
+        } catch (e) {
+          console.log("there was an error or the request is canciled");
+        }
+      }
+      request();
+      return () => ourRequest.cancel();
+    }
+  }, [state.email.cheackCount]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -136,6 +253,16 @@ export default function HomeGuest() {
                   });
                 }}
               />
+              <CSSTransition
+                in={state.email.hasError}
+                timeout={330}
+                classNames="liveValidateMessage"
+                unmountOnExit
+              >
+                <div className="alert alert-danger liveValidateMessage">
+                  {state.email.message}
+                </div>
+              </CSSTransition>
             </div>
             <div className="form-group">
               <label htmlFor="password-register" className="text-muted mb-1">
@@ -154,6 +281,16 @@ export default function HomeGuest() {
                   });
                 }}
               />
+              <CSSTransition
+                in={state.password.hasError}
+                timeout={330}
+                classNames="liveValidateMessage"
+                unmountOnExit
+              >
+                <div className="alert alert-danger liveValidateMessage">
+                  {state.password.message}
+                </div>
+              </CSSTransition>
             </div>
             <button
               type="submit"
