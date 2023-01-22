@@ -21,7 +21,7 @@ import NotFound from "./components/NotFound";
 import Search from "./components/Search";
 import Chat from "./components/Chat";
 
-Axios.defaults.baseURL = "http://localhost:8080/";
+Axios.defaults.baseURL = process.env.BACKENDURL || "";
 
 function App() {
   const initialState = {
